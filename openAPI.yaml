@@ -325,6 +325,7 @@ paths:
         500:
           description: server error  
 
+/users/register:
     post:
       tags: 
         - users
@@ -333,7 +334,14 @@ paths:
         content:
            application/json:
               schema:
-                  $ref: '#/components/schemas/user'
+                type: object
+                properties:
+                   name: 
+                     type: string
+                   email: 
+                     type: string
+                   password:
+                      type: string  
       responses:
         201:
           description: single user is created
@@ -347,7 +355,7 @@ paths:
           description: server error         
 
 
-  /users/{userId}:
+/users/{userId}:
     get:
       tags: 
         - users
@@ -465,14 +473,22 @@ paths:
       responses:
         200:
           description:  user authenticated successfully
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/user'
-        404:
-          description:  users is not found 
+        401:
+          description:  Unauthenticated
         500:
-          description: server error    
+          description: server error   
+
+
+/users/logout:
+    post:
+      tags: 
+        - users
+      summary: logout 
+      responses:
+        200:
+          description:  user log out successfully
+        500:
+          description: server error 
 
 
 
