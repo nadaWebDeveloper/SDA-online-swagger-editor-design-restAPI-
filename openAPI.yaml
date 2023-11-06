@@ -1,68 +1,69 @@
-openapi: 3.0.3
+openapi: 3.0.0
 
 info:
-  version: 1.0.0
   title: E-commerce API
   description: API for an E-commerce Website platform
-  contact: 
+  version: 1.0.0
+  contact:
+    name: nada yahya
     email: nadayahya@hotmail.com
 
-servece:
-   -url: http://localhost:3001
-
+servers:
+  - url: http://localhost:3001
+    description: url to API
+  
 
 tags:
   - name: products
     description: everything about products
-  - name: user
-    description: everything about user
-  - name: order
-    description: everything about order  
-  - name: category
-    description: everything about category  
-
+  - name: users
+    description: everything about users
+  - name: orders
+    description: everything about orders  
+  - name: categories
+    description: everything about categories  
 
 
 components:
   schemas: 
-    products:
+    product:
       type: object
       required:
         - title
         - price
         - category
       properties:
-      id:
+       id:
         type: string
-        description:  the id for product will be outomatically generated in the back-end
-      title: 
+        description:  the id for product will be automatically generated in the back-end
+       title: 
         type: string
         description: the title of the product
-      price: 
+       price: 
         type: number
         description: the price of the product     
-      description: 
+       description: 
         type: string
         description: the description of the product     
-      category: 
-        type: string
+       category: 
+        $ref: '#/components/schemas/category'
         description: the category of the product 
-      image: 
+       image: 
         type: string
         description: the image of the product 
-      rating: 
+       rating: 
         type: object
-        properies:
-        rate:
-        type: number
-        count:
-        type: number
-     example:
+        properties:
+          rate:
+            type: number
+          count:
+            type: number
+      example:
           id: 0
           title: mac book pro
-          price: 11000
+          price: 11000 $
           description: beautiful mac book pro 
-          category: labtop
+          category: laptop
           image: https://
           rating:
             rate: 3.78
@@ -94,19 +95,20 @@ components:
         email: nadayahya2020@hotmail.com
         password: million$$
 
-
     order:
       type: object
       required:
         - id 
-        - items
+        - products
         - totalPrice
       properties:
         id: 
           type: string
           description: the id of order will be automatically 
-        items:
-            type: string
+        products:
+            type: array
+            items: 
+              $ref: '#/components/schemas/product'
             description: the items of order 
         totalPrice:
              type: number
@@ -115,7 +117,7 @@ components:
       example: 
         id: 0
         items: iphone 
-        totalPrice: 3454$
+        totalPrice: 3454 $
 
     category:
       type: object
@@ -128,22 +130,21 @@ components:
           description: the id of order will be automatically 
         name:
             type: string
-            description: the name of category  
+            description: the name of category 
+        description: 
+            type: string
+            description: the description of the category        
 
       example: 
         id: 0
         name: Games 
-      
+        description: part of games 
            
-
-
-
-
 
 paths:
   /products:
     get:
-      tage: 
+      tags: 
         - products
       summary: get a list of products
       responses:
@@ -159,7 +160,7 @@ paths:
           description: server error  
 
     post:
-      tage: 
+      tags: 
         - products
       summary: create a products
       requestBody:
@@ -180,7 +181,7 @@ paths:
 
   /products/{productId}:
     get:
-      tage: 
+      tags: 
         - products
       summary: get a single product
       parameters:
@@ -188,21 +189,24 @@ paths:
           name: productId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
-          description: single product is returned
+          description: single product is returned by id
           content:
             application/json:
               schema:
                   $ref: '#/components/schemas/product'
+        404:
+          description:  product is not found
+
         500:
           description: server error                             
 
 
     delete:
-      tage: 
+      tags: 
         - products
       summary: delete a single product
       parameters:
@@ -210,30 +214,33 @@ paths:
           name: productId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
           description: delete a single product
+        404:
+          description:  product is not found 
         500:
           description: server error                                    
 
 
-      put:
-        tage: 
+    put:
+      tags: 
         - products
       summary: update a single product
+      parameters:
+        - in : path
+          name: productId
+          required: true
+          schema: 
+            type: string 
       requestBody:
         content:
            application/json:
             schema:
               $ref: '#/components/schemas/product'
-       parameters:
-        - in : path
-        name: productId
-        required: true
-        schema: 
-          type: string            
+              
 
       responses:
         200:
@@ -242,31 +249,35 @@ paths:
            application/json:
               schema:
                   $ref: '#/components/schemas/product'
+        404:
+          description:  product is not found           
         500:
           description: server error
 
 
 
-    /products/search:
+  /products/searchName:
     get:
-      tage: 
+      tags: 
         - products
       summary: search products
       parameters:
         - in : query
-        name: search
-        required: true
-        schema:
-          type: string
+          name: searchName
+          required: true
+          schema:
+           type: string
       responses:
         200:
-          description: all the products are returned based on thw name
+          description: search products by name
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/product'
+        404:
+          description:  product is not found                
         500:
           description: server error   
           
@@ -275,11 +286,10 @@ paths:
 
 
 
-paths:
   /users:
     get:
-      tage: 
-        - user
+      tags: 
+        - users
       summary: get a list of users
       responses:
         200:
@@ -290,12 +300,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/user'
+        404:
+          description:  users is not found 
         500:
           description: server error  
 
     post:
-      tage: 
-        - user
+      tags: 
+        - users
       summary: create a user
       requestBody:
         content:
@@ -309,21 +321,23 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/user'
+        404:
+          description:  users is not found 
         500:
           description: server error         
 
 
   /users/{userId}:
     get:
-      tage: 
-        - user
+      tags: 
+        - users
       summary: get a single user
       parameters:
         - in : path
           name: userId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
@@ -332,43 +346,47 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/user'
+        404:
+          description:  users is not found           
         500:
           description: server error                             
 
 
     delete:
-      tage: 
-        - user
+      tags: 
+        - users
       summary: delete a single user
       parameters:
         - in : path
           name: userId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
           description: delete a single user
+        404:
+          description:  users is not found 
         500:
           description: server error                                    
 
 
-      put:
-        tage: 
-        - user
+    put:
+      tags: 
+        - users
       summary: update a single user
       requestBody:
         content:
            application/json:
             schema:
               $ref: '#/components/schemas/user'
-       parameters:
+      parameters:
         - in : path
-        name: userId
-        required: true
-        schema: 
-          type: string            
+          name: userId
+          required: true
+          schema: 
+            type: string            
 
       responses:
         200:
@@ -377,22 +395,24 @@ paths:
            application/json:
               schema:
                   $ref: '#/components/schemas/user'
+        404:
+          description:  users is not found 
         500:
           description: server error
 
 
 
-    /users/search:
+  /users/searchUserName:
     get:
-      tage: 
-        - user
+      tags: 
+        - users
       summary: search users
       parameters:
         - in : query
-        name: search
-        required: true
-        schema:
-          type: string
+          name: searchUserName
+          required: true
+          schema:
+           type: string
       responses:
         200:
           description: all the users are returned based on thw name
@@ -402,6 +422,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/user'
+        404:
+          description:  users is not found                     
         500:
           description: server error   
           
@@ -413,11 +435,11 @@ paths:
           
           
 
-paths:
+
   /orders:
     get:
-      tage: 
-        - order
+      tags: 
+        - orders
       summary: get a list of orders
       responses:
         200:
@@ -428,12 +450,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/order'
+        404:
+          description:  order is not found           
         500:
           description: server error  
 
     post:
-      tage: 
-        - order
+      tags: 
+        - orders
       summary: create a order
       requestBody:
         content:
@@ -447,21 +471,23 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/order'
+        404:
+          description:  order is not found 
         500:
           description: server error         
 
 
   /orders/{orderId}:
     get:
-      tage: 
-        - order
+      tags: 
+        - orders
       summary: get a single order
       parameters:
         - in : path
           name: orderId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
@@ -470,43 +496,47 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/order'
+        404:
+          description:  order is not found           
         500:
           description: server error                             
 
 
     delete:
-      tage: 
-        - order
+      tags: 
+        - orders
       summary: delete a single order
       parameters:
         - in : path
           name: orderId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
           description: delete a single order
+        404:
+          description:  order is not found   
         500:
           description: server error                                    
 
 
-      put:
-        tage: 
-        - order
+    put:
+      tags: 
+        - orders
       summary: update a single order
       requestBody:
         content:
            application/json:
             schema:
               $ref: '#/components/schemas/order'
-       parameters:
+      parameters:
         - in : path
-        name: orderId
-        required: true
-        schema: 
-          type: string            
+          name: orderId
+          required: true
+          schema: 
+            type: string            
 
       responses:
         200:
@@ -515,22 +545,24 @@ paths:
            application/json:
               schema:
                   $ref: '#/components/schemas/order'
+        404:
+          description:  order is not found           
         500:
           description: server error
 
 
 
-    /orders/search:
+  /orders/search:
     get:
-      tage: 
-        - order
+      tags: 
+        - orders
       summary: search orders
       parameters:
         - in : query
-        name: search
-        required: true
-        schema:
-          type: string
+          name: search
+          required: true
+          schema:
+           type: string
       responses:
         200:
           description: all the orders are returned based on thw name
@@ -540,25 +572,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/order'
+        404:
+          description:  order is not found           
         500:
           description: server error     
           
           
           
-          
-          
-          
-          
-          
-          
-          
-          
+        
 
-paths:
+
   /categories:
     get:
-      tage: 
-        - category
+      tags: 
+        - categories
       summary: get a list of categories
       responses:
         200:
@@ -569,12 +596,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/category'
+        404:
+          description:  category is not found           
         500:
           description: server error  
 
     post:
-      tage: 
-        - category
+      tags: 
+        - categories
       summary: create a category
       requestBody:
         content:
@@ -588,21 +617,23 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/category'
+        404:
+          description:  category is not found           
         500:
           description: server error         
 
 
   /categories/{categoryId}:
     get:
-      tage: 
-        - category
+      tags: 
+        - categories
       summary: get a single category
       parameters:
         - in : path
           name: categoryId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
@@ -611,43 +642,47 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/category'
+        404:
+          description:  category is not found        
         500:
           description: server error                             
 
 
     delete:
-      tage: 
-        - category
+      tags: 
+        - categories
       summary: delete a single category
       parameters:
         - in : path
           name: categoryId
           required: true
           schema:
-          type: string
+           type: string
 
       responses:
         200:
           description: delete a single category
+        404:
+          description:  category is not found   
         500:
           description: server error                                    
 
 
-      put:
-        tage: 
-        - category
+    put:
+      tags: 
+        - categories
       summary: update a single category
       requestBody:
         content:
            application/json:
             schema:
               $ref: '#/components/schemas/category'
-       parameters:
+      parameters:
         - in : path
-        name: categoryId
-        required: true
-        schema: 
-          type: string            
+          name: categoryId
+          required: true
+          schema: 
+            type: string            
 
       responses:
         200:
@@ -656,22 +691,24 @@ paths:
            application/json:
               schema:
                   $ref: '#/components/schemas/category'
+        404:
+          description:  category is not found           
         500:
           description: server error
 
 
 
-    /categories/search:
+  /categories/search:
     get:
-      tage: 
-        - category
+      tags: 
+        - categories
       summary: search categories
       parameters:
         - in : query
-        name: search
-        required: true
-        schema:
-          type: string
+          name: search
+          required: true
+          schema:
+           type: string
       responses:
         200:
           description: all the categories are returned based on thw name
@@ -681,6 +718,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/category'
+        404:
+          description:  category is not found           
         500:
           description: server error           
           
+
