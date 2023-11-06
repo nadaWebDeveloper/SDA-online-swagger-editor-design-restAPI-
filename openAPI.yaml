@@ -147,6 +147,26 @@ paths:
       tags: 
         - products
       summary: get a list of products
+      parameters:
+        - in : query
+          name: page
+          schema:
+           type: number
+          required: false
+        - in: query 
+          name: limit
+          schema:
+           type: number
+          required: false
+        - in: query 
+          name: sortBy
+          schema:
+           type: string
+           enum: 
+             - 'asc'
+             - 'desc'
+          required: false   
+
       responses:
         200:
           description: all the products are returned
@@ -425,18 +445,43 @@ paths:
         404:
           description:  users is not found                     
         500:
-          description: server error   
-          
-          
-          
-          
-          
-          
-          
-          
+          description: server error
+
+/users/login:
+    post:
+      tags: 
+        - users
+      summary: login
+      requestBody:
+        content:
+           application/json:
+              schema:
+                type: object
+                properties:
+                   email: 
+                     type: string
+                   password:
+                      type: string   
+      responses:
+        200:
+          description:  user authenticated successfully
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/user'
+        404:
+          description:  users is not found 
+        500:
+          description: server error    
 
 
-  /orders:
+
+
+
+
+
+
+/orders:
     get:
       tags: 
         - orders
@@ -477,7 +522,7 @@ paths:
           description: server error         
 
 
-  /orders/{orderId}:
+/orders/{orderId}:
     get:
       tags: 
         - orders
@@ -552,7 +597,7 @@ paths:
 
 
 
-  /orders/search:
+/orders/search:
     get:
       tags: 
         - orders
@@ -582,7 +627,7 @@ paths:
         
 
 
-  /categories:
+/categories:
     get:
       tags: 
         - categories
@@ -623,7 +668,7 @@ paths:
           description: server error         
 
 
-  /categories/{categoryId}:
+/categories/{categoryId}:
     get:
       tags: 
         - categories
@@ -698,7 +743,7 @@ paths:
 
 
 
-  /categories/search:
+ /categories/search:
     get:
       tags: 
         - categories
